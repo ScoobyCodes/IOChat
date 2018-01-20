@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <title>IOChat</title>
+    <style>
+        body{
+            margin-top : 30px;
+        }
+
+        #messageArea {
+            display: none;
+        }
+     </style>
+</head>
+<body>
+
+<div id="messageArea" class = "container">
+    <div  class = "row">
+        <div class = "col-4">
+            <h1 class="alert alert-dark">Online Users</h1>
+            <ul class="list-group" id="users"></ul>
+        </div>
+        <div class = "col-8">
+            <div id="feedback">
+            </div>
+            <div class = "chat" id="chat"></div>
+            <form id="messageForm">
+                <div class="form-group">
+                    <label>Enter Message</label>
+                    <textarea class="form-control" id="message"></textarea>
+                    <br>
+                    <input type="submit" class="btn btn-primary" value="Send Message">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="userFormArea" class="container">
+    <div  class="row">
+        <div class="col-md-12">
+            <form id="userForm">
+                <label>Enter Username</label>
+                <textarea class="form-control" id="username"></textarea>
+                <br>
+                <input type="submit" class="btn btn-primary" value="Create New User">
+                <br>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+<script>
+    $(function(){
+        var socket = io.connect();
+        var $messageForm = $('#messageForm');
+        var $message = $('#message');
+        var $chat = $('#chat');
+        var $feedback = $('#feedback');
+
+        var $messageArea = $('#messageArea');
+        var $userForm = $('#userForm');
+        var $userFormArea = $('#userFormArea');
+        var $users = $('#users');
+        var $username = $('#username');
+
+
+        $message.keypress(function(e){
+            socket.emit('typing',{});
+        })
+
+
+        socket.on('typing',function(data){
+            $feedback.html('<p><em>' + data + ' is typing a message...</em></p>');
+        })
+
+        $messageForm.submit(function(e){
+            e.preventDefault();
+            socket.emit('send message',$message.val());
+                $message.val('');
+        })
+
+        socket.on('new message',function(data){
+            $feedback.html('');
+            $chat.append('<div class="well alert alert-dark"><strong>'+data.user+': </strong>'+data.msg+ '</div>')
+        })
+
+        $userForm.submit(function(e){
+            e.preventDefault();
+            socket.emit('new User',$username.val(),function(data) {
+                if(data) {
+                    $userFormArea.css("display","none");
+                    $messageArea.show();
+                }
+            })
+
+
+            $username.val('');
+        })
+
+        socket.on('get users',function(data){
+            var html = '';
+            for(var i=0;i<data.length;i++) {
+                html += '<li class ="alert alert-success">' + data[i] +'</li>';
+            }
+
+            $users.html(html);
+        })
+    })
+
+</script>
+</body>
+</html>
