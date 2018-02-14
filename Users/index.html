@@ -15,8 +15,10 @@
             <ul class="list-group" id="users"></ul>
         </div>
         <div class = "col-8">
-            <div id="feedback">
+            <div class="alert alert-primary"  id="privateMessagingDisabler">
+                Disable Private Messaging Mode
             </div>
+            <div id="feedback"></div>
             <div class = "chat" id="chat"></div>
             <form id="messageForm">
                 <div class="form-group">
@@ -52,6 +54,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
 <script>
     var socket = io.connect();
+    var privateMessageEnabled = false;
+    var userSequence = null;
+    var $privateMessage = $('#privateMessagingDisabler');
 </script>
 <script src="user.js"></script>
 <script src="message.js"></script>

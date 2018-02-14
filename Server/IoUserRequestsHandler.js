@@ -27,7 +27,7 @@ module.exports = function(server) {
             }
         })
 
-        require('./IoMessageRequestHandler')(io,socket);
+        require('./IoMessageRequestHandler')(io,socket,users,connections);
     })
 }
 
